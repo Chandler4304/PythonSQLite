@@ -17,12 +17,12 @@ class SampleData:
                 return
 
             stations = [
-                ("London Heathrow", "BST"),
-                ("John F. Kennedy International Airport", "EDT"),
-                ("Dubai International Airport", "GST"),
-                ("Tokyo Narita International Airport", "JST"),
-                ("Sydney Kingsford Smith Airport", "AEST"),
-                ("Paris Charles de Gaulle Airport", "CEST")
+                ("London Heathrow", "Europe/London"),
+                ("New York John F. Kennedy International Airport", "America/New_York"),
+                ("Dubai International Airport", "Asia/Dubai"),
+                ("Tokyo Narita International Airport", "Asia/Tokyo"),
+                ("Sydney Kingsford Smith Airport", "Australia/Sydney"),
+                ("Paris Charles de Gaulle Airport", "Europe/Paris")
             ]
             self.cur.executemany(
                 "INSERT INTO Stations (stationName, timeZone) VALUES (?, ?)",
@@ -73,7 +73,7 @@ class SampleData:
             station_map = {name: station_id for station_id, name in self.cur.fetchall()}
 
             routes = [
-                (station_map["London Heathrow"], station_map["John F. Kennedy International Airport"], 8),
+                (station_map["London Heathrow"], station_map["New York John F. Kennedy International Airport"], 8),
                 (station_map["London Heathrow"], station_map["Dubai International Airport"], 7),
                 (station_map["London Heathrow"], station_map["Tokyo Narita International Airport"], 11),
                 (station_map["London Heathrow"], station_map["Sydney Kingsford Smith Airport"], 22),
@@ -93,17 +93,32 @@ class SampleData:
             self.cur.execute("SELECT pilotID FROM Pilots")
             pilot_ids = [row[0] for row in self.cur.fetchall()]
 
+            flight_schedule = [
+                (route_map["New York John F. Kennedy International Airport"], aircraft_ids[0], pilot_ids[0], pilot_ids[1], datetime.datetime(2026, 8, 1, 6, 0), datetime.datetime(2026, 8, 1, 10, 0), "Scheduled"),
+                (route_map["Dubai International Airport"], aircraft_ids[1], pilot_ids[2], pilot_ids[3], datetime.datetime(2026, 8, 1, 7, 0), datetime.datetime(2026, 8, 1, 18, 0), "Scheduled"),
+                (route_map["Tokyo Narita International Airport"], aircraft_ids[2], pilot_ids[4], pilot_ids[5], datetime.datetime(2026, 8, 1, 8, 0), datetime.datetime(2026, 8, 2, 9, 0), "Scheduled"),
+                (route_map["Sydney Kingsford Smith Airport"], aircraft_ids[3], pilot_ids[6], pilot_ids[7], datetime.datetime(2026, 8, 1, 9, 0), datetime.datetime(2026, 8, 3, 7, 0), "Scheduled"),
+                (route_map["Paris Charles de Gaulle Airport"], aircraft_ids[4], pilot_ids[8], pilot_ids[9], datetime.datetime(2026, 8, 1, 10, 0), datetime.datetime(2026, 8, 1, 13, 0), "Scheduled"),
+                (route_map["New York John F. Kennedy International Airport"], aircraft_ids[5], pilot_ids[10], pilot_ids[11], datetime.datetime(2026, 8, 2, 6, 0), datetime.datetime(2026, 8, 2, 10, 0), "Scheduled"),
+                (route_map["Dubai International Airport"], aircraft_ids[6], pilot_ids[12], pilot_ids[13], datetime.datetime(2026, 8, 2, 7, 0), datetime.datetime(2026, 8, 2, 18, 0), "Scheduled"),
+                (route_map["Tokyo Narita International Airport"], aircraft_ids[7], pilot_ids[14], pilot_ids[15], datetime.datetime(2026, 8, 2, 8, 0), datetime.datetime(2026, 8, 3, 9, 0), "Scheduled"),
+                (route_map["Sydney Kingsford Smith Airport"], aircraft_ids[0], pilot_ids[0], pilot_ids[1], datetime.datetime(2026, 8, 3, 10, 0), datetime.datetime(2026, 8, 5, 7, 0), "Scheduled"),
+                (route_map["Paris Charles de Gaulle Airport"], aircraft_ids[1], pilot_ids[2], pilot_ids[3], datetime.datetime(2026, 8, 2, 13, 0), datetime.datetime(2026, 8, 2, 16, 0), "Scheduled")
+            ]
+
             flights = [
-                (route_map["John F. Kennedy International Airport"], aircraft_ids[0], pilot_ids[0], pilot_ids[1], "2026-08-01", "06:00", "2026-08-01", "09:00", "Scheduled"),
-                (route_map["Dubai International Airport"], aircraft_ids[1], pilot_ids[2], pilot_ids[3], "2026-08-01", "07:00", "2026-08-01", "17:00", "Scheduled"),
-                (route_map["Tokyo Narita International Airport"], aircraft_ids[2], pilot_ids[4], pilot_ids[5], "2026-08-01", "08:00", "2026-08-02", "09:00", "Scheduled"),
-                (route_map["Sydney Kingsford Smith Airport"], aircraft_ids[3], pilot_ids[6], pilot_ids[7], "2026-08-01", "09:00", "2026-08-03", "07:00", "Scheduled"),
-                (route_map["Paris Charles de Gaulle Airport"], aircraft_ids[4], pilot_ids[8], pilot_ids[9], "2026-08-01", "10:00", "2026-08-01", "12:00", "Scheduled"),
-                (route_map["John F. Kennedy International Airport"], aircraft_ids[5], pilot_ids[10], pilot_ids[11], "2026-08-02", "06:00", "2026-08-02", "09:00", "Scheduled"),
-                (route_map["Dubai International Airport"], aircraft_ids[6], pilot_ids[12], pilot_ids[13], "2026-08-02", "07:00", "2026-08-02", "17:00", "Scheduled"),
-                (route_map["Tokyo Narita International Airport"], aircraft_ids[7], pilot_ids[14], pilot_ids[15], "2026-08-02", "08:00", "2026-08-03", "09:00", "Scheduled"),
-                (route_map["Sydney Kingsford Smith Airport"], aircraft_ids[0], pilot_ids[0], pilot_ids[1], "2026-08-03", "10:00", "2026-08-05", "07:00", "Scheduled"),
-                (route_map["Paris Charles de Gaulle Airport"], aircraft_ids[1], pilot_ids[2], pilot_ids[3], "2026-08-02", "13:00", "2026-08-02", "15:00", "Scheduled")
+                (
+                    route,
+                    aircraft,
+                    pilot,
+                    coPilot,
+                    outbound_dt.strftime("%Y-%m-%d"),
+                    outbound_dt.strftime("%H:%M"),
+                    inbound_dt.strftime("%Y-%m-%d"),
+                    inbound_dt.strftime("%H:%M"),
+                    status
+                )
+                for route, aircraft, pilot, coPilot, outbound_dt, inbound_dt, status in flight_schedule
             ]
             self.cur.executemany(
                 "INSERT INTO Flights (route, aircraft, pilot, coPilot, outboundDate, outboundTime, inboundDate, inboundTime, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
